@@ -1,0 +1,11 @@
+export const interval = {
+  SECOND_30: 30,
+  SECOND_45: 45,
+  MINUTE_1: 60,
+  MINUTE_2: 120,
+  MINUTE_3: 180,
+  MINUTE_5: 300,
+  MINUTE_10: 600,
+  MINUTE_15: 900,
+  MINUTE_30: 1200
+};

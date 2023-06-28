@@ -1,0 +1,31 @@
+{
+  "name": "task-lambda",
+  "version": "1.0.0",
+  "description": "Example of creating a function that runs as a cron job using the serverless `schedule` event",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node -P ./tsconfig.json --files src/ src/index.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.350.0",
+    "@types/aws-lambda": "^8.10.119",
+    "@types/aws-sdk": "^2.7.0",
+    "@types/cron": "^2.0.1",
+    "@types/lodash": "^4.14.195",
+    "cron": "^2.3.1",
+    "lodash": "^4.17.21",
+    "pg": "^8.11.0",
+    "pg-hstore": "^2.3.4"
+  },
+  "devDependencies": {
+    "@serverless/typescript": "^3.30.1",
+    "@types/node": "^16.4.3",
+    "@types/pg": "^8.10.1",
+    "serverless-lift": "^1.1.2",
+    "serverless-plugin-typescript": "^2.1.5",
+    "ts-node": "^10.7.0",
+    "typescript": "^5.1.3"
+  }
+}
