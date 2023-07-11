@@ -33,15 +33,15 @@ export type Header = {
 }
 
 
-export let CompareType: {
-  SMALL: 'SMALL',
-  BIG: 'BIG',
-  SMALL_EQUAL: 'SMALL_EQUAL',
-  BIG_EQUAL: 'BIG_EQUAL'
-};
-
-export type CompareType = (typeof CompareType)[keyof typeof CompareType]
-
+export enum CompareType {
+  SMALL,
+  BIG,
+  SMALL_EQUAL,
+  BIG_EQUAL,
+  DOES_NOT_CONTAIN,
+  EQUAL,
+  NOT_EQUAL
+}
 
 export let HealtCheckType: {
   SWITCH: 'SWITCH',
