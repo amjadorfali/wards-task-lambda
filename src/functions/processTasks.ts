@@ -1,6 +1,6 @@
 import {SendMessageBatchRequestEntry, SQSClient} from "@aws-sdk/client-sqs";
 import {fetchData} from "../db/queries";
-import {Pool} from "pg";
+import {Client} from "pg";
 import {QueueService} from "../helpers/QueueService";
 import {HealthCheck} from "../models/HealthCheck";
 import _ = require("lodash");
@@ -9,33 +9,42 @@ import {interval} from "../models/enums";
 import getPool from "../db";
 
 
-const sqs = new SQSClient({
-  credentials: {
-    accessKeyId: "AKIA5OBEIXRZ455SL26Z",
-    secretAccessKey: "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"
-  }
-});
+
 
 export const run = async (event: EventBridgeEvent<any, any>, context: Context) => {
+  const sqs = new SQSClient({
+    region: process.env.REGION,
+    credentials: {
+      accessKeyId: process.env.ACCESS_KEY_ID || "",
+      secretAccessKey: process.env.ACCESS_KEY || ""
+    }
+  });
   console.log(context)
   console.log("event", event)
+  console.log(process.env)
   const routeArr = context.functionName.split("-")
   const route = routeArr[routeArr.length - 1]
-  const queue = new QueueService(sqs, "https://sqs.eu-central-1.amazonaws.com/923494038643/PROD_METRIC_HEALTH_CHECK")
-  const pool: Pool = getPool()
-  await pool.connect()
+  const queue = new QueueService(sqs, "https://sqs.eu-central-1.amazonaws.com/387070877324/PROD_METRIC_HEALTH_CHECK")
+  const client: Client = getPool()
+  await client.connect()
 
   // @ts-ignore
   const intervalSec = interval[route]
 
   console.log(intervalSec)
 
-  await process(pool, queue, intervalSec)
+  await processTask(client, queue, intervalSec)
 }
-const process = async (pool: Pool, queue: QueueService, interval: number) => {
-  const data = await fetchData(pool, interval)
-  const tasks = data.rows
-  sendDataToSQS(tasks, queue)
+const processTask = async (client: Client, queue: QueueService, interval: number) => {
+  try {
+    const data = await fetchData(client, interval)
+    client.end()
+    const tasks = data.rows
+    sendDataToSQS(tasks, queue)
+  }
+  catch (e) {
+    console.error(e)
+  }
 }
 const sendDataToSQS = (data: HealthCheck[], queue: QueueService, onRollback?: (data: (string | undefined)[]) => void) => {
   const messages: SendMessageBatchRequestEntry[] = data.map(task => {

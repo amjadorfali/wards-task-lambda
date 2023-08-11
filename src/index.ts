@@ -1,7 +1,13 @@
 import {run} from "./functions/processTasks";
 import {Context, EventBridgeEvent} from "aws-lambda";
+let environment = process.env.ACTIVE_PROFILE;
 
+if (!environment || environment === 'development') {
+  require('dotenv').config();
+  environment = process.env.ACTIVE_PROFILE;
+}
 const event = async () => {
+
   const event: EventBridgeEvent<any, any> = {
     "detail-type": undefined,
     account: "",
@@ -22,7 +28,7 @@ const event = async () => {
     },
     awsRequestId: "",
     callbackWaitsForEmptyEventLoop: false,
-    functionName: "task-lambda-dev-MINUTE_5",
+    functionName: "task-lambda-dev-MINUTE_3",
     functionVersion: "",
     invokedFunctionArn: "",
     logGroupName: "",
