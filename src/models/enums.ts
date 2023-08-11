@@ -7,5 +7,5 @@ export const interval = {
   MINUTE_5: 300,
   MINUTE_10: 600,
   MINUTE_15: 900,
-  MINUTE_30: 1200
+  MINUTE_30: 1800
 };
