@@ -19,9 +19,9 @@ export const run = async (event: EventBridgeEvent<any, any>, context: Context) =
       secretAccessKey: process.env.ACCESS_KEY || ""
     }
   });
-  console.log(context)
-  console.log("event", event)
-  console.log(process.env)
+  console.log('Fn Name: ',context.functionName, " event: ", event)
+  // console.log()
+  // console.log(process.env)
   const routeArr = context.functionName.split("-")
   const route = routeArr[routeArr.length - 1]
   const queue = new QueueService(sqs, "https://sqs.eu-central-1.amazonaws.com/387070877324/PROD_METRIC_HEALTH_CHECK")
@@ -31,7 +31,7 @@ export const run = async (event: EventBridgeEvent<any, any>, context: Context) =
   // @ts-ignore
   const intervalSec = interval[route]
 
-  console.log(intervalSec)
+  console.log('For Interval: ',intervalSec)
 
   await processTask(client, queue, intervalSec)
 }
@@ -40,13 +40,13 @@ const processTask = async (client: Client, queue: QueueService, interval: number
     const data = await fetchData(client, interval)
     client.end()
     const tasks = data.rows
-    sendDataToSQS(tasks, queue)
+    await sendDataToSQS(tasks, queue)
   }
   catch (e) {
-    console.error(e)
+    console.error('Error occured',e)
   }
 }
-const sendDataToSQS = (data: HealthCheck[], queue: QueueService, onRollback?: (data: (string | undefined)[]) => void) => {
+const sendDataToSQS = async (data: HealthCheck[], queue: QueueService, onRollback?: (data: (string | undefined)[]) => void) => {
   const messages: SendMessageBatchRequestEntry[] = data.map(task => {
     return {
       MessageAttributes: {},
@@ -55,13 +55,13 @@ const sendDataToSQS = (data: HealthCheck[], queue: QueueService, onRollback?: (d
     }
   })
   const chunks = _.chunk(messages, 10)
-  chunks.forEach(chunk => {
-    queue.sendBatchMessage(chunk).catch((err) => {
+  const promises = chunks.map(chunk =>  queue.sendBatchMessage(chunk).catch((err) => {
       console.log(err)
       if (onRollback) {
         onRollback(chunk.map(item => item.Id))
       }
     })
-  })
+  )
 
+  return await Promise.all(promises)
 }

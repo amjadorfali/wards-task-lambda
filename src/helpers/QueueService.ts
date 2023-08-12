@@ -18,7 +18,7 @@ export class QueueService {
       Entries: message,
       QueueUrl: this.url,
     });
-    console.log(command)
+    console.log('Sending SQS: ',command.input)
     return this.client.send(command);
   }
 
