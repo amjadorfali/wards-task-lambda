@@ -66,6 +66,18 @@ export let Location: {
   SAO_PAULO: 'SAO_PAULO'
 };
 
+export enum Locations {
+	FRANKFURT = 'FRANKFURT',
+	IRELAND = 'IRELAND',
+	CALIFORNIA = 'CALIFORNIA',
+	DUBAI = 'DUBAI',
+	OHIO = 'OHIO',
+	STOCKHOLM = 'STOCKHOLM',
+	SINGAPORE = 'SINGAPORE',
+	SYDNEY = 'SYDNEY',
+	SAO_PAULO = 'SAO_PAULO'
+}
+
 export type Location = (typeof Location)[keyof typeof Location]
 
 
