@@ -18,20 +18,19 @@ const RegionKeyToLabel: { [key: string]: keyof typeof Locations } = {
 };
 type Queues = { [key: string]: QueueService }
 export const run = async (event: EventBridgeEvent<any, any>, context: Context) => {
-  const sqs = new SQSClient({
-    region: process.env.REGION,
-    credentials: {
-      accessKeyId: process.env.ACCESS_KEY_ID || "",
-      secretAccessKey: process.env.ACCESS_KEY || ""
-    }
-  });
   console.log('Fn Name: ', context.functionName, " event: ", event)
   // console.log()
   // console.log(process.env)
   const routeArr = context.functionName.split("-")
   const route = routeArr[routeArr.length - 1]
   const queues = Object.entries(RegionKeyToLabel).reduce<Queues>((prev, [regionKey, regionLabel]) => {
-    prev[regionLabel] = new QueueService(sqs, `https://sqs.${regionKey}.amazonaws.com/387070877324/PROD_METRIC_HEALTH_CHECK`)
+    prev[regionLabel] = new QueueService(new SQSClient({
+      region: regionKey,
+      credentials: {
+        accessKeyId: process.env.ACCESS_KEY_ID || "",
+        secretAccessKey: process.env.ACCESS_KEY || ""
+      }
+    }), `https://sqs.${regionKey}.amazonaws.com/387070877324/PROD_METRIC_HEALTH_CHECK`)
     return prev
   }, {})
 
@@ -75,7 +74,7 @@ const sendDataToSQS = async (data: HealthCheck[], queues: Queues, onRollback?: (
   for (const [location, sqsMsgs] of Object.entries(locationMessages)) {
 
     try {
-
+      if(!queues[location]) throw new Error(`Queue not found for location: ${location}`)
       const chunks = _.chunk(sqsMsgs, 10)
       promises.push(...chunks.map(chunk => queues[location].sendBatchMessage(chunk).catch((err) => {
         console.log(err)
