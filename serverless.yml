@@ -4,6 +4,8 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs18.x
+  region: eu-central-1
+
   environment:
     ACCESS_KEY_ID: "AKIAVUHZY32GABKXCHVY"
     ACCESS_KEY: "8gYrMogrU9sQPsYxZdbgMLV1RroXYnLW1Pnu1tXC"
@@ -13,6 +15,7 @@ provider:
     POSTGRES_PASSWORD: "02hkM2EpHYFeBvZCkvea"
     POSTGRES_HOST: "wards-prod.c1kcykenvknf.eu-central-1.rds.amazonaws.com"
     ACTIVE_PROFILE: "production"
+    TASK_SERVICE_URL: "https://api.wards.app"
 
 functions:
   MINUTE_1:

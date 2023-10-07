@@ -28,7 +28,7 @@ const event = async () => {
     },
     awsRequestId: "",
     callbackWaitsForEmptyEventLoop: false,
-    functionName: "task-lambda-dev-MINUTE_3",
+    functionName: "task-lambda-dev-MINUTE_1",
     functionVersion: "",
     invokedFunctionArn: "",
     logGroupName: "",

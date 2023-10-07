@@ -1,12 +1,10 @@
 import { SendMessageBatchRequestEntry, SQSClient } from "@aws-sdk/client-sqs";
-import { fetchData } from "../db/queries";
-import { Client } from "pg";
 import { QueueService } from "../helpers/QueueService";
 import { HealthCheck, Locations } from "../models/HealthCheck";
 import _ = require("lodash");
 import { Context, EventBridgeEvent } from "aws-lambda";
 import { interval } from "../models/enums";
-import getPool from "../db";
+import {getTasks} from "../api/getHealthMetric";
 
 
 const RegionKeyToLabel: { [key: string]: keyof typeof Locations } = {
@@ -34,21 +32,16 @@ export const run = async (event: EventBridgeEvent<any, any>, context: Context) =
     return prev
   }, {})
 
-  const client: Client = getPool()
-  await client.connect()
-
   // @ts-ignore
   const intervalSec = interval[route]
 
   console.log('For Interval: ', intervalSec)
 
-  await processTask(client, queues, intervalSec)
+  await processTask(queues, intervalSec)
 }
-const processTask = async (client: Client, queues: Queues, interval: number) => {
+const processTask = async (queues: Queues, interval: number) => {
   try {
-    const data = await fetchData(client, interval)
-    client.end()
-    const tasks = data.rows
+    const tasks = await getTasks(interval)
     await sendDataToSQS(tasks, queues)
   }
   catch (e) {
